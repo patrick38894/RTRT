@@ -38,7 +38,7 @@ int main(int, char const**)
     rectangle.setOutlineThickness(1);
     rectangle.setPosition(0, 0);
     
-    cout << sf::Shader::isAvailable() << endl;
+    //cout << sf::Shader::isAvailable() << endl;
     sf::Shader myshader;
 
     if (!myshader.loadFromFile("vertexshader" , sf::Shader::Vertex)) {
@@ -60,6 +60,10 @@ int main(int, char const**)
 
     sf::Vector3f pos = sf::Vector3f(3.0, 0.0, 0.0);
     myshader.setParameter("pos",pos);
+    float epsilon = .05;
+    int maxRaySteps = 50;
+    myshader.setParameter("epsilon",epsilon);
+    myshader.setParameter("maxRaySteps",maxRaySteps);
 
     sf::Vector2f thetaphi = sf::Vector2f(pi,pi/2);
     sf::Vector2f dthetadphi = sf::Vector2f(0.0,0.0);
@@ -67,7 +71,7 @@ int main(int, char const**)
 
     sf::Vector3f up = sf::Vector3f(sin(thetaphi.y - pi/2)*cos(thetaphi.x), sin(thetaphi.y - pi/2)*sin(thetaphi.x), cos(thetaphi.y - pi/2));
 
-    myshader.setParameter("dir",dir);
+    myshader.setParameter("viewDir",dir);
     
     myshader.setParameter("up", up);
     sf::Vector2i mouseBegin(0,0);
@@ -114,24 +118,14 @@ int main(int, char const**)
 		    float p = thetaphi.y + dthetadphi.y;
                     dir = sf::Vector3f(sin(p)*cos(t), sin(p)*sin(t), cos(p));
     		    up = sf::Vector3f(sin(p - pi/2)*cos(t), sin(p - pi/2)*sin(t), cos(p - pi/2));
-		    myshader.setParameter("dir", dir);
+		    myshader.setParameter("viewDir", dir);
 		    myshader.setParameter("up", up);
-		    //std::cout << "dir = " << dir.x << ", " << dir.y << ", " << dir.z << std::endl;
-		    //std::cout << "up = " << up.x << ", " << up.y << ", " << up.z << std::endl;
                 }
             }
             else {
                 mouseBegin = sf::Vector2i(0,0);
 		thetaphi += dthetadphi;
 		dthetadphi = sf::Vector2f(0.0,0.0);
-		/*if (thetaphi.x > 2*pi)
-			thetaphi.x -= 2*pi;
-		else if (thetaphi.x < 0)
-			thetaphi.x += 2*pi;
-		if (thetaphi.y > pi)
-			thetaphi.y -= pi;
-		else if (thetaphi.y < 0)
-			thetaphi.y += pi;*/
             }
                 
             
@@ -145,8 +139,6 @@ int main(int, char const**)
 
         // Update the window
         window.display();
-	//std::cout << "I am at position " << pos.x << ", " << pos.y << ", " << pos.z << std::endl;
-	//std::cout << "looking in direction" << dir.x << ", " << dir.y << ", " << dir.z << std::endl;
     }
     
     return EXIT_SUCCESS;

@@ -38,6 +38,7 @@ class scenegen {
 		int maxRaySteps;
 		float epsilon;
 
-		string utility;
+		string utility1;
+		string utility2;
 		string maincode;
 };
