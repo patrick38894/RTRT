@@ -15,8 +15,8 @@ scenegen::scenegen() {
 uniform vec3 viewDir;\n\
 uniform vec3 up;\n\
 uniform vec3 pos;\n\
-uniform int maxRaySteps;\n\
-uniform float epsilon;\n\
+int maxRaySteps = 50;\n\
+float epsilon = 0.0001;\n\
 vec3 intersect;\n\
 vec2 offset(vec2 p) {\n\
 	return p - 0.5*screen;\n\
@@ -48,7 +48,7 @@ vec3 realPos = pos;\n\
 vec2 screenPos = offset(gl_FragCoord.xy);\n\
 float diffEpsilon = epsilon * 10.0;\n\
 screenPos = screenPos * 4.0 / screen.x;\n\
-float c = .125;\n\
+float c = 0.0;\n\
 vec3 x = right * c * screenPos.x;\n\
 vec3 y = up * c * screenPos.y;\n\
 vec3 realDir = normalize(viewDir+x+y);\n\
@@ -62,12 +62,6 @@ vec3 normal = normalize(vec3(\n\
 		DE(intersect+diffEpsilon*xx)-DE(intersect),\n\
 		DE(intersect+diffEpsilon*yy)-DE(intersect),\n\
 		DE(intersect+diffEpsilon*zz)-DE(intersect)));\n");
-
-
-
-
-
-
 }
 
 string scenegen::getSource() {
@@ -109,9 +103,9 @@ string scenegen::compileColorFunc() {
 	//return string("gl_FragColor = vec4(lightIntensities[0]*pow(dot(normal,normalize(lightPositions[0])),lightDiffuses[0]),0,0,1);\n");
 	return string(
 "if (intersect == vec3(0.0,0.0,0.0))\n\
-	gl_FragColor = vec4(0.0,1.0,0.0,1.0);\n\
+	gl_FragColor = vec4(t,-viewDir.x,epsilon,1.0);\n\
 else\n\
-	gl_FragColor = vec4(normal.x,normal.y,0.0,1.0);\n");
+	gl_FragColor = vec4(normal.x,0.0,0.0,1.0);\n");
 }
 
 string scenegen::combinePrimitives() {

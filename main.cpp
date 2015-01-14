@@ -1,19 +1,3 @@
-
-//
-// Disclamer:
-// ----------
-//
-// This code will work only if you selected window, graphics and audio.
-//
-// Note that the "Run Script" build phase will copy the required frameworks
-// or dylibs to your application bundle so you can execute it on any OS X
-// computer.
-//
-// Your resource files (images, sounds, fonts, ...) are also copied to your
-// application bundle. To get the path to these resource, use the helper
-// method resourcePath() from ResourcePath.hpp
-//
-
 #include "scenegen.h"
 using namespace std;
 
@@ -49,20 +33,21 @@ int main(int, char const**)
 	    cout << "failed to generate fragment shader" << endl;
     scene.write("shadercompileroutput");
     string fragmentsource = scene.getSource();
+    //cout << scene.getSource() << endl;
 
     
     if (!myshader.loadFromMemory(fragmentsource, sf::Shader::Fragment)) {
         cout << "failed to load fragment shader" << endl;
     }
 
-
-    myshader.setParameter("screen",screensize);
+    sf::Vector2f s = sf::Vector2f((float)screensize.x,(float)screensize.y);
+    myshader.setParameter("screen",s);
 
     sf::Vector3f pos = sf::Vector3f(3.0, 0.0, 0.0);
     myshader.setParameter("pos",pos);
-    float epsilon = .05;
+    float epsilon = 9000.005f;
     int maxRaySteps = 50;
-    myshader.setParameter("epsilon",epsilon);
+    myshader.setParameter("epsilon",0.1f);
     myshader.setParameter("maxRaySteps",maxRaySteps);
 
     sf::Vector2f thetaphi = sf::Vector2f(pi,pi/2);
@@ -139,6 +124,8 @@ int main(int, char const**)
 
         // Update the window
         window.display();
+//	cout << "I am at position " << pos.x << ", " << pos.y << ", " << pos.z << endl;
+       // cout << "looking in direction" << dir.x << ", " << dir.y << ", " << dir.z << endl;
     }
     
     return EXIT_SUCCESS;
