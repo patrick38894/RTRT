@@ -4,10 +4,10 @@
 #include <math.h>
 using namespace std;
 
-class primitive {
+class light {
 	public:
-		primitive();
-		string DE;
-		string name;
+		light();
+		float diffuse;
+		float intensity;
 		sf::Vector3f pos;
 };

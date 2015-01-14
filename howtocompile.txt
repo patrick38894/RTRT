@@ -1,1 +1,1 @@
-g++ main.cpp -lGLU /usr/lib64/libsfml* 
+g++ -g *.cpp -std=c++0x -lGLU /usr/lib/libsfml-*

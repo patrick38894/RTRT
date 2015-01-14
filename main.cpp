@@ -14,14 +14,19 @@
 // method resourcePath() from ResourcePath.hpp
 //
 
-#include <SFML/Graphics.hpp>
-#include <iostream>
-#include <math.h>
+#include "scenegen.h"
+using namespace std;
 
 // Here is a small helper for you ! Have a look.
 
 int main(int, char const**)
 {
+    scenegen scene;
+    primitive p;
+    scene.addPrimitive(p);
+    light l;
+    scene.addLight(l);
+    
     float pi = 3.14159265;
     // Create the main window
     sf::Vector2f screensize(1920,1080);
@@ -33,12 +38,23 @@ int main(int, char const**)
     rectangle.setOutlineThickness(1);
     rectangle.setPosition(0, 0);
     
-    std::cout << sf::Shader::isAvailable() << std::endl;
+    cout << sf::Shader::isAvailable() << endl;
     sf::Shader myshader;
 
-    if (!myshader.loadFromFile("vertexshader" , "fragshader")) {
-        std::cout << "dude the shader is broken or something" << std::endl;
+    if (!myshader.loadFromFile("vertexshader" , sf::Shader::Vertex)) {
+        cout << "failed to load vertex shader" << endl;
     }
+    scene.compile();
+    if (!scene.isCompiled())
+	    cout << "failed to generate fragment shader" << endl;
+    scene.write("shadercompileroutput");
+    string fragmentsource = scene.getSource();
+
+    
+    if (!myshader.loadFromMemory(fragmentsource, sf::Shader::Fragment)) {
+        cout << "failed to load fragment shader" << endl;
+    }
+
 
     myshader.setParameter("screen",screensize);
 
@@ -58,6 +74,7 @@ int main(int, char const**)
 
     float speed = 0.25;
     float turnspeed = .90;
+
     
     
     // Start the game loop
