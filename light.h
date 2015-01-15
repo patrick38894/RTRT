@@ -10,4 +10,5 @@ class light {
 		float diffuse;
 		float intensity;
 		sf::Vector3f pos;
+		sf::Vector3f color;
 };

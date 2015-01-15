@@ -26,6 +26,7 @@ class scenegen {
 		string compileColorFunc();
 		string combinePrimitives();
 		string combineLights();
+		string genConstants();
 
 
 

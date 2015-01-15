@@ -45,10 +45,6 @@ int main(int, char const**)
 
     sf::Vector3f pos = sf::Vector3f(3.0, 0.0, 0.0);
     myshader.setParameter("pos",pos);
-    float epsilon = 9000.005f;
-    int maxRaySteps = 50;
-    myshader.setParameter("epsilon",0.1f);
-    myshader.setParameter("maxRaySteps",maxRaySteps);
 
     sf::Vector2f thetaphi = sf::Vector2f(pi,pi/2);
     sf::Vector2f dthetadphi = sf::Vector2f(0.0,0.0);

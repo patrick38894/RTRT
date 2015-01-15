@@ -5,7 +5,7 @@ using namespace std;
 scenegen::scenegen() {
 	compiled = false;
 	maxRaySteps = 50;
-	epsilon = .005;
+	epsilon = .0005;
 	source = string("");
 	numLights = 0;
 	numPrimitives = 0;
@@ -15,8 +15,6 @@ scenegen::scenegen() {
 uniform vec3 viewDir;\n\
 uniform vec3 up;\n\
 uniform vec3 pos;\n\
-int maxRaySteps = 50;\n\
-float epsilon = 0.0001;\n\
 vec3 intersect;\n\
 vec2 offset(vec2 p) {\n\
 	return p - 0.5*screen;\n\
@@ -68,6 +66,15 @@ string scenegen::getSource() {
 	return source;
 }
 
+string scenegen::genConstants() {
+	string val = string("int maxRaySteps = ");
+	val += to_string(maxRaySteps) + string(";\n");
+	val += string("float epsilon = ");
+	val += to_string(epsilon) + string(";\n");
+	return val;
+}
+
+
 
 void scenegen::addPrimitive(primitive p) {
 	primitives.push_back(p);
@@ -83,10 +90,12 @@ void scenegen::compile() {
 	source = string("");
 	source += utility1;
 	
+	string constants = genConstants();
 	string lightDecls = combineLights();
 	string de = combinePrimitives();
 	string colorFunction = compileColorFunc();
 	
+	source += constants;
 	source += de;
 	source += utility2;
 	source += string("void main(void) {\n");
@@ -100,12 +109,22 @@ void scenegen::compile() {
 
 string scenegen::compileColorFunc() {
 	//placeholder function
-	//return string("gl_FragColor = vec4(lightIntensities[0]*pow(dot(normal,normalize(lightPositions[0])),lightDiffuses[0]),0,0,1);\n");
 	return string(
 "if (intersect == vec3(0.0,0.0,0.0))\n\
-	gl_FragColor = vec4(t,-viewDir.x,epsilon,1.0);\n\
-else\n\
-	gl_FragColor = vec4(normal.x,0.0,0.0,1.0);\n");
+	gl_FragColor = vec4(0.0,0.0,0.0,1.0);\n\
+else {\n\
+	//vec3 surfaceColor = colormap(t,intersect);\n\
+	vec3 surfaceColor = vec3(1.0,0.0,0.0);\n\
+	vec3 lightColor = vec3(0.0,0.0,0.0);\n\
+	for (int i = 0; i < numLights; ++i) {\n\
+		if (dot(normal,lightPos[i]) > 0)\n\
+			lightColor += lightColors[i] * lightIntensities[i] * pow(dot(normal,normalize(lightPos[i])),lightDiffuses[i]);\n\
+	}\n\
+	gl_FragColor.r = (lightColor.x+surfaceColor.x)/2.0;\n\
+	gl_FragColor.g = (lightColor.y+surfaceColor.y)/2.0;\n\
+	gl_FragColor.b = (lightColor.z+surfaceColor.z)/2.0;\n\
+	gl_FragColor.a = 1.0;\n\
+}\n");
 }
 
 string scenegen::combinePrimitives() {
@@ -119,12 +138,15 @@ string scenegen::combineLights() {
 	code += string("vec3 lightPositions[numlights];\n");
 	code += string("float lightIntensities [numlights];\n");
 	code += string("float lightDiffuses[numlights];\n");
+	code += string("vec3 lightColors[numlights];\n");
 	for (vector<light>::iterator it = lights.begin() ; it != lights.end(); ++it) {
-		code += string("lightPositions[ ") + to_string(count) + "] = vec3("  + to_string(it-> pos.x) + "," + to_string(it-> pos.y) + "," + to_string(it->pos.z) + ");\n";
+		code += string("lightPositions[") + to_string(count) + "] = vec3("  + to_string(it-> pos.x) + "," + to_string(it-> pos.y) + "," + to_string(it->pos.z) + ");\n";
 
-		code += string("lightIntensities[ ") + to_string(count) + "] = " + to_string(it->intensity) + ";\n";
+		code += string("lightIntensities[") + to_string(count) + "] = " + to_string(it->intensity) + ";\n";
 
-		code += string("lightDiffuses[ ") + to_string(count) + "] = "  + to_string(it->diffuse) + ";\n";
+		code += string("lightDiffuses[") + to_string(count) + "] = "  + to_string(it->diffuse) + ";\n";
+
+		code += string("lightColors[") + to_string(count) + "] = vec3("  + to_string(it-> color.x) + "," + to_string(it-> color.y) + "," + to_string(it->color.z) + ");\n";
 	}
 	
 	return code;
