@@ -38,6 +38,7 @@ class scenegen {
 		bool compiled;
 		int maxRaySteps;
 		float epsilon;
+		sf::Vector3f ambient;
 
 		string utility1;
 		string utility2;

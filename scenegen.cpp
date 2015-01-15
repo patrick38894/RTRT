@@ -7,6 +7,7 @@ scenegen::scenegen() {
 	maxRaySteps = 50;
 	epsilon = .0005;
 	source = string("");
+	ambient = sf::Vector3f(0.2,0.2,0.2);
 	numLights = 0;
 	numPrimitives = 0;
 	utility1 = string(
@@ -114,15 +115,21 @@ string scenegen::compileColorFunc() {
 	gl_FragColor = vec4(0.0,0.0,0.0,1.0);\n\
 else {\n\
 	//vec3 surfaceColor = colormap(t,intersect);\n\
-	vec3 surfaceColor = vec3(1.0,0.0,0.0);\n\
+	vec3 ambient = vec3(") +
+		to_string(ambient.x) + string(", ") +
+		to_string(ambient.y) + string(", ") +
+		to_string(ambient.z) + string(");\n") +
+	string(
+"	vec3 surfaceColor = vec3(1.0,0.0,0.0);\n\
 	vec3 lightColor = vec3(0.0,0.0,0.0);\n\
 	for (int i = 0; i < numLights; ++i) {\n\
-		if (dot(normal,lightPos[i]) > 0)\n\
-			lightColor += lightColors[i] * lightIntensities[i] * pow(dot(normal,normalize(lightPos[i])),lightDiffuses[i]);\n\
+		if (dot(normal,lightPositions[i]) > 0.0)\n\
+			lightColor += lightColors[i] * lightIntensities[i] * pow(dot(normal,normalize(lightPositions[i])),lightDiffuses[i]);\n\
 	}\n\
-	gl_FragColor.r = (lightColor.x+surfaceColor.x)/2.0;\n\
-	gl_FragColor.g = (lightColor.y+surfaceColor.y)/2.0;\n\
-	gl_FragColor.b = (lightColor.z+surfaceColor.z)/2.0;\n\
+	surfaceColor = 0.5 * surfaceColor + 0.5 * lightColor;\n\
+	gl_FragColor.r = (surfaceColor.x*(lightColor.x+ambient.x));\n\
+	gl_FragColor.g = (surfaceColor.y*(lightColor.y+ambient.y));\n\
+	gl_FragColor.b = (surfaceColor.z*(lightColor.z+ambient.z));\n\
 	gl_FragColor.a = 1.0;\n\
 }\n");
 }
@@ -134,11 +141,11 @@ string scenegen::combinePrimitives() {
 
 string scenegen::combineLights() {
 	int count = 0;
-	string code = string("\nconst int numlights = ") + to_string(numLights) + ";\n";
-	code += string("vec3 lightPositions[numlights];\n");
-	code += string("float lightIntensities [numlights];\n");
-	code += string("float lightDiffuses[numlights];\n");
-	code += string("vec3 lightColors[numlights];\n");
+	string code = string("\nconst int numLights = ") + to_string(numLights) + ";\n";
+	code += string("vec3 lightPositions[numLights];\n");
+	code += string("float lightIntensities [numLights];\n");
+	code += string("float lightDiffuses[numLights];\n");
+	code += string("vec3 lightColors[numLights];\n");
 	for (vector<light>::iterator it = lights.begin() ; it != lights.end(); ++it) {
 		code += string("lightPositions[") + to_string(count) + "] = vec3("  + to_string(it-> pos.x) + "," + to_string(it-> pos.y) + "," + to_string(it->pos.z) + ");\n";
 
