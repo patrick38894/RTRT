@@ -136,7 +136,31 @@ else {\n\
 
 string scenegen::combinePrimitives() {
 	//placeholder function
-	return primitives[0].DE;
+	string code("");
+	int fnum = 0;
+	for (vector<primitive>::iterator it = primitives.begin() ; it != primitives.end(); ++it) {
+		code += string("float DE") + to_string(fnum++) + string(" (vec3 p)\n");
+		code += it->DE + string("\n");
+	}
+	int k = 0;
+	code += string("float DE(vec3 pos) {\n");
+	code += string("const int numPrimitives = ") + to_string(numPrimitives) + ";\n";
+	code += string("vec3 primPositions[numPrimitives];\n");
+	for (vector<primitive>::iterator it = primitives.begin() ; it != primitives.end(); ++it)
+		code += string("primPositions[") + to_string(k++) + "] = vec3("  + to_string(it-> pos.x) + "," + to_string(it-> pos.y) + "," + to_string(it->pos.z) + ");\n";
+	
+	code += string("float primDEresults[numPrimitives];\n");
+	code += string("int j = 0;\n");
+	for (int i = 0; i < numPrimitives; ++i)
+		code += string("primDEresults[j++] = DE") + to_string(i) + "(pos);\n";
+	code += string(
+"float min = 1.0/0.0; \n\
+for (int i = 0; i < numPrimitives; ++i) \n\
+	if (primDEresults[i] < min) \n\
+		min = primDEresults[i]; \n\
+return min; \n\
+} \n" );
+	return code;
 }
 
 string scenegen::combineLights() {

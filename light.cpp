@@ -9,3 +9,11 @@ light::light() {
 	color = sf::Vector3f(1.0,1.0,1.0);
 }
 
+light::light(float d, float i, sf::Vector3f p, sf::Vector3f c) {
+	//placeholder function
+	pos = p;
+	diffuse = d;
+	intensity = i;
+	color = c;
+}
+
