@@ -10,4 +10,5 @@ class primitive {
 		string DE;
 		string name;
 		sf::Vector3f pos;
+		sf::Vector3f color;
 };

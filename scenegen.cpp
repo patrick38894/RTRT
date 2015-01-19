@@ -47,9 +47,9 @@ vec3 realPos = pos;\n\
 vec2 screenPos = offset(gl_FragCoord.xy);\n\
 float diffEpsilon = epsilon * 10.0;\n\
 screenPos = screenPos * 4.0 / screen.x;\n\
-float c = 0.0;\n\
-vec3 x = right * c * screenPos.x;\n\
-vec3 y = up * c * screenPos.y;\n\
+float f = 0.125;\n\
+vec3 x = right * f * screenPos.x;\n\
+vec3 y = up * f * screenPos.y;\n\
 vec3 realDir = normalize(viewDir+x+y);\n\
 realPos += right * screenPos.x;\n\
 realPos += up * screenPos.y;\n\
@@ -120,7 +120,7 @@ else {\n\
 		to_string(ambient.y) + string(", ") +
 		to_string(ambient.z) + string(");\n") +
 	string(
-"	vec3 surfaceColor = vec3(1.0,0.0,0.0);\n\
+"	vec3 surfaceColor = primColors[colorIndex];\n\
 	vec3 lightColor = vec3(0.0,0.0,0.0);\n\
 	for (int i = 0; i < numLights; ++i) {\n\
 		if (dot(normal,lightPositions[i]) > 0.0)\n\
@@ -143,21 +143,27 @@ string scenegen::combinePrimitives() {
 		code += it->DE + string("\n");
 	}
 	int k = 0;
-	code += string("float DE(vec3 pos) {\n");
 	code += string("const int numPrimitives = ") + to_string(numPrimitives) + ";\n";
+	code += string("int colorIndex = 0;\n");
+	code += string("vec3 primColors[numPrimitives];\n");
+	code += string("float DE(vec3 pos) {\n");
 	code += string("vec3 primPositions[numPrimitives];\n");
-	for (vector<primitive>::iterator it = primitives.begin() ; it != primitives.end(); ++it)
-		code += string("primPositions[") + to_string(k++) + "] = vec3("  + to_string(it-> pos.x) + "," + to_string(it-> pos.y) + "," + to_string(it->pos.z) + ");\n";
+	for (vector<primitive>::iterator it = primitives.begin() ; it != primitives.end(); ++it) {
+		code += string("primPositions[") + to_string(k) + "] = vec3("  + to_string(it-> pos.x) + "," + to_string(it-> pos.y) + "," + to_string(it->pos.z) + ");\n";
+		code += string("primColors[") + to_string(k++) + "] = vec3("  + to_string(it-> color.x) + "," + to_string(it-> color.y) + "," + to_string(it->color.z) + ");\n";
+	}
 	
 	code += string("float primDEresults[numPrimitives];\n");
 	code += string("int j = 0;\n");
 	for (int i = 0; i < numPrimitives; ++i)
-		code += string("primDEresults[j++] = DE") + to_string(i) + "(pos);\n";
+		code += string("primDEresults[j] = DE") + to_string(i) + "(pos+primPositions[j]);\nj++;\n";
 	code += string(
-"float min = 1.0/0.0; \n\
+"float min = 99999.99; \n\
 for (int i = 0; i < numPrimitives; ++i) \n\
-	if (primDEresults[i] < min) \n\
+	if (primDEresults[i] < min) {\n\
 		min = primDEresults[i]; \n\
+		colorIndex = i;\n\
+	}\n\
 return min; \n\
 } \n" );
 	return code;

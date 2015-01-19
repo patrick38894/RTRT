@@ -6,8 +6,12 @@ using namespace std;
 int main(int, char const**)
 {
     scenegen scene;
-    primitive p;
-    scene.addPrimitive(p);
+    primitive p1;
+    primitive p2;
+    p2.pos = sf::Vector3f(1.0,1.0,1.0);
+    p2.color = sf::Vector3f(1.0,0.0,0.0);
+    scene.addPrimitive(p1);
+    scene.addPrimitive(p2);
     light l;
     scene.addLight(l);
     
