@@ -4,8 +4,8 @@ using namespace std;
 
 scenegen::scenegen() {
 	compiled = false;
-	maxRaySteps = 50;
-	epsilon = .0005;
+	maxRaySteps = 75;
+	epsilon = .00005;
 	source = string("");
 	ambient = sf::Vector3f(0.2,0.2,0.2);
 	numLights = 0;
@@ -18,6 +18,9 @@ uniform vec3 up;\n\
 uniform vec3 pos;\n\
 bool hit;\n\
 vec3 intersect;\n\
+float rand(vec2 co){\n\
+  return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);\n\
+}\n\
 vec3 reflect(vec3 dir, vec3 normal) {\n\
 	dir = -1.0*dir;\n\
 	vec3 temp = dot(dir,normal)*normal;\n\
@@ -33,14 +36,16 @@ vec2 offset(vec2 p) {\n\
 
 	utility2 = string(
 "vec3 derivative(vec3 p) {\n\
-float diffEpsilon = epsilon * 10.0;\n\
+float diffEpsilon = epsilon * 20.0;\n\
 vec3 xx = vec3(1,0,0);\n\
 vec3 yy = vec3(0,1,0);\n\
 vec3 zz = vec3(0,0,1);\n\
-	return normalize(vec3(\n\
+vec3 n =vec3(\n\
 		DE(intersect+diffEpsilon*xx)-DE(intersect),\n\
 		DE(intersect+diffEpsilon*yy)-DE(intersect),\n\
-		DE(intersect+diffEpsilon*zz)-DE(intersect)));\n\
+		DE(intersect+diffEpsilon*zz)-DE(intersect));\n\
+float c = 0.00001;\n\
+return normalize(vec3(n.x+c*rand(p.xy),n.y+c*rand(p.yz),n.z+c*rand(p.xz)));\n\
 }\n\
 float trace(vec3 from, vec3 dir) {\n\
 	hit = false;\n\
@@ -158,13 +163,13 @@ else {\n\
 		float t = trace(newPos, newDir);\n\
 		normal = derivative(intersect);\n\
 	}\n\
-	//float factor = pow(2,1.0-maxReflectionsf);\n\
-	float factor = 1.0;\n\
+	float factor = pow(2,1.0-maxReflectionsf);\n\
+	//float factor = 1.0;\n\
 	for (int i = maxReflections-1; i > 0; --i) { \n\
 		lightStack[i-1] += factor * mix(lightStack[i], surfStack[i]);\n\
-		//factor = factor * 2.0;\n\
+		factor = factor * 2.0;\n\
 	}\n\
-	//factor = factor * 2.0;\n\
+	factor = factor * 2.0;\n\
 	lightColor = mix(lightStack[0],surfStack[0]);\n\
 	gl_FragColor.r = lightColor.x;\n\
 	gl_FragColor.g = lightColor.y;\n\

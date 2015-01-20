@@ -9,13 +9,21 @@ int main(int, char const**)
     primitive p1;
     primitive p2;
     primitive p3;
+    primitive p4;
+    primitive p5;
     p2.pos = sf::Vector3f(1.0,1.0,1.0);
     p2.color = sf::Vector3f(1.0,0.0,0.0);
-    p3.pos = sf::Vector3f(0.0,-1.0,1.0);
-    p3.color = sf::Vector3f(0.0,0.0,1.0);
+    p3.pos = sf::Vector3f(0.0,-1.0,-1.0);
+    p3.color = sf::Vector3f(0.5,0.5,1.0);
+    p4.pos = sf::Vector3f(0.0,1.0,-1.0);
+    p4.color = sf::Vector3f(1.0,1.0,0.0);
+    p5.pos = sf::Vector3f(-0.5,-0.5,-2.0);
+    p5.color = sf::Vector3f(1.0,1.0,1.0);
     scene.addPrimitive(p1);
     scene.addPrimitive(p2);
     scene.addPrimitive(p3);
+    scene.addPrimitive(p4);
+    scene.addPrimitive(p5);
     light l;
     scene.addLight(l);
     
