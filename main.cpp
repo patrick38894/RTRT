@@ -5,6 +5,7 @@ using namespace std;
 
 int main(int, char const**)
 {
+    sf::Clock clock;
     scenegen scene;
     primitive p1;
     primitive p2;
@@ -77,10 +78,17 @@ int main(int, char const**)
     float turnspeed = .90;
 
     
-    
+    int frames = 0;
     // Start the game loop
     while (window.isOpen())
     {
+	    ++frames;
+	    sf::Time time = clock.getElapsedTime();
+	    if (time.asSeconds() >= 1) {
+		    cout << "fps = " << frames << endl;
+		    frames = 0;
+		    clock.restart();
+	    }
 	//myshader.setParameter("time",t);
         // Process events
         sf::Event event;

@@ -4,8 +4,8 @@ using namespace std;
 
 scenegen::scenegen() {
 	compiled = false;
-	maxRaySteps = 75;
-	epsilon = .00005;
+	maxRaySteps = 25;
+	epsilon = .005;
 	source = string("");
 	ambient = sf::Vector3f(0.2,0.2,0.2);
 	numLights = 0;
