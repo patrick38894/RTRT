@@ -4,10 +4,10 @@ using namespace std;
 
 scenegen::scenegen() {
 	compiled = false;
-	maxRaySteps = 25;
-	epsilon = .005;
+	maxRaySteps = 40;
+	epsilon = .0005;
 	source = string("");
-	ambient = sf::Vector3f(0.2,0.2,0.2);
+	ambient = sf::Vector3f(0.2,0.2,0.4);
 	numLights = 0;
 	numPrimitives = 0;
 	utility1 = string(
@@ -44,7 +44,7 @@ vec3 n =vec3(\n\
 		DE(intersect+diffEpsilon*xx)-DE(intersect),\n\
 		DE(intersect+diffEpsilon*yy)-DE(intersect),\n\
 		DE(intersect+diffEpsilon*zz)-DE(intersect));\n\
-float c = 0.00001;\n\
+float c = 0.0001;\n\
 return normalize(vec3(n.x+c*rand(p.xy),n.y+c*rand(p.yz),n.z+c*rand(p.xz)));\n\
 }\n\
 float trace(vec3 from, vec3 dir) {\n\
@@ -166,11 +166,12 @@ else {\n\
 	float factor = pow(2,1.0-maxReflectionsf);\n\
 	//float factor = 1.0;\n\
 	for (int i = maxReflections-1; i > 0; --i) { \n\
-		lightStack[i-1] += factor * mix(lightStack[i], surfStack[i]);\n\
+		lightStack[i-1] += factor * mix(surfStack[i], lightStack[i]);\n\
+		lightStack[i-1] = clamp(lightStack[i-1],0.0,1.0);\n\
 		factor = factor * 2.0;\n\
 	}\n\
 	factor = factor * 2.0;\n\
-	lightColor = mix(lightStack[0],surfStack[0]);\n\
+	lightColor = mix(surfStack[0],lightStack[0]);\n\
 	gl_FragColor.r = lightColor.x;\n\
 	gl_FragColor.g = lightColor.y;\n\
 	gl_FragColor.b = lightColor.z;\n\
@@ -230,6 +231,7 @@ string scenegen::combineLights() {
 		code += string("lightDiffuses[") + to_string(count) + "] = "  + to_string(it->diffuse) + ";\n";
 
 		code += string("lightColors[") + to_string(count) + "] = vec3("  + to_string(it-> color.x) + "," + to_string(it-> color.y) + "," + to_string(it->color.z) + ");\n";
+		count++;
 	}
 	
 	return code;
