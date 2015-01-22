@@ -7,7 +7,7 @@ scenegen::scenegen() {
 	maxRaySteps = 40;
 	epsilon = .0005;
 	source = string("");
-	ambient = sf::Vector3f(0.7,0.7,0.4);
+	ambient = sf::Vector3f(0.2,0.2,0.5);
 	numLights = 0;
 	numPrimitives = 0;
 	utility1 = string(
@@ -28,7 +28,7 @@ vec3 reflect(vec3 dir, vec3 n) {\n\
 	return normalize(dir + 2.0 * temp);\n\
 }\n\
 vec3 mix(vec3 s, vec3 l) {\n\
-	return l - clamp(vec3(1.0,1.0,1.0)-s,0.0,1.0);\n\
+	return clamp(l - clamp(vec3(1.0,1.0,1.0)-s,0.0,1.0),0.0,999999.9);\n\
 }\n\
 vec2 offset(vec2 p) {\n\
 	return p - 0.5*screen;\n\
