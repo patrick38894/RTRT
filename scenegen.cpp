@@ -7,7 +7,7 @@ scenegen::scenegen() {
 	maxRaySteps = 40;
 	epsilon = .0005;
 	source = string("");
-	ambient = sf::Vector3f(0.2,0.2,0.5);
+	ambient = sf::Vector3f(0.1,0.1,0.3);
 	numLights = 0;
 	numPrimitives = 0;
 	utility1 = string(
@@ -161,7 +161,7 @@ else {\n\
 				lightStack[j] += lightColors[i] * lightIntensities[i] * pow(dot(normal,normalize(lightPositions[i])),primDiffuses[i]);\n\
 			vec3 incident = normalize(reflect(normal,tdir));\n\
 			if (dot(incident,lightPositions[i]) > 0.0) {\n\
-				lightStack[j] += 5.0 * lightColors[i] * lightIntensities[i] * pow(dot(incident,normalize(lightPositions[i])),primSpecs[i]);\n\
+				lightStack[j] += lightColors[i] * lightIntensities[i] * pow(dot(incident,normalize(lightPositions[i])),primSpecs[i]);\n\
 			}\n\
 		}\n\
 		tdir = reflect(viewDir, normal);\n\
