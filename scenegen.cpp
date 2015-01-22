@@ -7,7 +7,7 @@ scenegen::scenegen() {
 	maxRaySteps = 40;
 	epsilon = .0005;
 	source = string("");
-	ambient = sf::Vector3f(0.2,0.2,0.4);
+	ambient = sf::Vector3f(0.7,0.7,0.4);
 	numLights = 0;
 	numPrimitives = 0;
 	utility1 = string(
@@ -21,14 +21,14 @@ vec3 intersect;\n\
 float rand(vec2 co){\n\
   return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);\n\
 }\n\
-vec3 reflect(vec3 dir, vec3 normal) {\n\
+vec3 reflect(vec3 dir, vec3 n) {\n\
 	dir = -1.0*dir;\n\
-	vec3 temp = dot(dir,normal)*normal;\n\
+	vec3 temp = dot(dir,n)*n;\n\
 	temp = temp - dir;\n\
 	return normalize(dir + 2.0 * temp);\n\
 }\n\
 vec3 mix(vec3 s, vec3 l) {\n\
-	return clamp(l - (vec3(1.0,1.0,1.0)-s),0.0,1.0);\n\
+	return l - clamp(vec3(1.0,1.0,1.0)-s,0.0,1.0);\n\
 }\n\
 vec2 offset(vec2 p) {\n\
 	return p - 0.5*screen;\n\
@@ -79,7 +79,8 @@ vec3 realDir = normalize(viewDir+x+y);\n\
 realPos += right * screenPos.x;\n\
 realPos += up * screenPos.y;\n\
 float t = trace(realPos,realDir);\n\
-vec3 normal = normalize(derivative(intersect));\n");
+vec3 normal = normalize(derivative(intersect));\n\
+vec3 tdir = vec3(0.0,0.0,0.0);\n");
 }
 
 string scenegen::getSource() {
@@ -149,6 +150,7 @@ else {\n\
 		lightStack[j] = vec3(0.0,0.0,0.0);\n\
 		surfStack[j] = vec3(0.0,0.0,0.0);\n\
 	}\n\
+	tdir = viewDir;\n\
 	for (int j = 0; j < maxReflections; ++j) {\n\
 		if (!hit)\n\
 			break;\n\
@@ -157,21 +159,23 @@ else {\n\
 		for (int i = 0; i < numLights; ++i) {\n\
 			if (dot(normal,lightPositions[i]) > 0.0)\n\
 				lightStack[j] += lightColors[i] * lightIntensities[i] * pow(dot(normal,normalize(lightPositions[i])),primDiffuses[i]);\n\
+			vec3 incident = normalize(reflect(normal,tdir));\n\
+			if (dot(incident,lightPositions[i]) > 0.0) {\n\
+				lightStack[j] += 5.0 * lightColors[i] * lightIntensities[i] * pow(dot(incident,normalize(lightPositions[i])),primSpecs[i]);\n\
+			}\n\
 		}\n\
-		vec3 newDir = reflect(viewDir, normal);\n\
-		vec3 newPos = intersect + 2.0 * epsilon * newDir;\n\
-		float t = trace(newPos, newDir);\n\
+		tdir = reflect(viewDir, normal);\n\
+		vec3 newPos = intersect + 2.0 * epsilon * tdir;\n\
+		float t = trace(newPos, tdir);\n\
 		normal = derivative(intersect);\n\
 	}\n\
 	float factor = pow(2,1.0-maxReflectionsf);\n\
-	//float factor = 1.0;\n\
 	for (int i = maxReflections-1; i > 0; --i) { \n\
 		lightStack[i-1] += factor * mix(surfStack[i], lightStack[i]);\n\
-		lightStack[i-1] = clamp(lightStack[i-1],0.0,1.0);\n\
 		factor = factor * 2.0;\n\
 	}\n\
-	factor = factor * 2.0;\n\
 	lightColor = mix(surfStack[0],lightStack[0]);\n\
+	lightColor = clamp(lightColor,0.0,1.0);\n\
 	gl_FragColor.r = lightColor.x;\n\
 	gl_FragColor.g = lightColor.y;\n\
 	gl_FragColor.b = lightColor.z;\n\
@@ -191,13 +195,15 @@ string scenegen::combinePrimitives() {
 	code += string("const int numPrimitives = ") + to_string(numPrimitives) + ";\n";
 	code += string("int colorIndex = 0;\n");
 	code += string("float primDiffuses[numPrimitives];\n");
+	code += string("float primSpecs[numPrimitives];\n");
 	code += string("vec3 primColors[numPrimitives];\n");
 	code += string("float DE(vec3 pos) {\n");
 	code += string("vec3 primPositions[numPrimitives];\n");
 	for (vector<primitive>::iterator it = primitives.begin() ; it != primitives.end(); ++it) {
 		code += string("primPositions[") + to_string(k) + "] = vec3("  + to_string(it-> pos.x) + "," + to_string(it-> pos.y) + "," + to_string(it->pos.z) + ");\n";
 		code += string("primColors[") + to_string(k) + "] = vec3("  + to_string(it-> color.x) + "," + to_string(it-> color.y) + "," + to_string(it->color.z) + ");\n";
-		code += string("primDiffuses[") + to_string(k++) + "] = " + to_string(it->diffuse) + ";\n";
+		code += string("primDiffuses[") + to_string(k) + "] = " + to_string(it->diffuse) + ";\n";
+		code += string("primSpecs[") + to_string(k++) + "] = " + to_string(it->spec) + ";\n";
 	}
 	
 	code += string("float primDEresults[numPrimitives];\n");

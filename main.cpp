@@ -48,7 +48,7 @@ int main(int, char const**)
     
     float pi = 3.14159265;
     // Create the main window
-    sf::Vector2f screensize(1920, 1080);
+    sf::Vector2f screensize(1920,1080);
     sf::RenderWindow window(sf::VideoMode(screensize.x, screensize.y), "SFML window");
 
     sf::RectangleShape rectangle;

@@ -7,7 +7,8 @@ primitive::primitive() {
 	//all placeholders
 	pos = sf::Vector3f(0.0,0.0,0.0);
 	color = sf::Vector3f(0.0,1.0,0.0);
-	diffuse = 7.0;
+	diffuse = 2.0;
+	spec = 35.0;
 	name = string("sphere");
 	DE = string("{return length(p) - 0.5; \n}\n");
 }
@@ -15,7 +16,8 @@ primitive::primitive() {
 sphere::sphere(float r) {
 	pos = sf::Vector3f(0.0,0.0,0.0);
 	color = sf::Vector3f(1.0,1.0,1.0);
-	diffuse = 7.0;
+	diffuse = 2.0;
+	spec = 35.0;
 	name = string("sphere");
 	DE = string("{return length(p) - ") + to_string(r) + string(";\n}\n");
 
@@ -25,7 +27,8 @@ sphere::sphere(float r) {
 torus::torus(float r1, float r2) {
 	pos = sf::Vector3f(0.0,0.0,0.0);
 	color = sf::Vector3f(1.0,1.0,1.0);
-	diffuse = 7.0;
+	diffuse = 2.0;
+	spec = 35.0;
 	name = string("torus");
 	DE = string("{vec2 q = vec2(length(p.xz) -")+to_string(r1)+",p.y);\n";
 	DE += string("return length(q) -")+to_string(r2)+";\n}\n";
@@ -35,7 +38,8 @@ torus::torus(float r1, float r2) {
 box::box(float x, float y, float z) {
 	pos = sf::Vector3f(0.0,0.0,0.0);
 	color = sf::Vector3f(1.0,1.0,1.0);
-	diffuse = 7.0;
+	diffuse = 2.0;
+	spec = 35.0;
 	name = string("box");
 	DE = string("{vec3 d = abs(p) - vec3(")
 		+to_string(x) + ", " 
@@ -48,7 +52,8 @@ box::box(float x, float y, float z) {
 cone::cone(float r, float h) {
 	pos = sf::Vector3f(0.0,0.0,0.0);
 	color = sf::Vector3f(1.0,1.0,1.0);
-	diffuse = 7.0;
+	diffuse = 2.0;
+	spec = 35.0;
 	name = string("cone");
 	r /= sqrt(pow(r,2)+pow(h,2));
 	h /= sqrt(pow(r,2)+pow(h,2));

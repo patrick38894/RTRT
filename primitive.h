@@ -8,6 +8,7 @@ class primitive {
 	public:
 		primitive();
 		float diffuse;
+		float spec;
 		string DE;
 		string name;
 		sf::Vector3f pos;
