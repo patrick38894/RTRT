@@ -2,6 +2,13 @@
 using namespace std;
 
 // Here is a small helper for you ! Have a look.
+//
+sf::Vector3f cross(sf::Vector3f a, sf::Vector3f b) {
+	return sf::Vector3f(
+			a.y*b.z-a.z*b.y,
+			a.z*b.x-a.x*b.z,
+			a.x*b.y-a.y*b.x );
+}
 
 int main(int, char const**)
 {
@@ -86,6 +93,7 @@ int main(int, char const**)
     sf::Vector3f dir = sf::Vector3f(sin(thetaphi.y)*cos(thetaphi.x), sin(thetaphi.y)*sin(thetaphi.x), cos(thetaphi.y));
 
     sf::Vector3f up = sf::Vector3f(sin(thetaphi.y - pi/2)*cos(thetaphi.x), sin(thetaphi.y - pi/2)*sin(thetaphi.x), cos(thetaphi.y - pi/2));
+    sf::Vector3f right = cross(dir,up);
 
     myshader.setParameter("viewDir",dir);
     
@@ -121,6 +129,22 @@ int main(int, char const**)
             if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Escape) {
                 window.close();
             }
+            if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Right) {
+		pos += right* speed;
+                myshader.setParameter("pos",pos);
+	    }
+            if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Left) {
+		pos -= right* speed;
+                myshader.setParameter("pos",pos);
+	    }
+            if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Up) {
+		pos += up * speed;
+                myshader.setParameter("pos",pos);
+	    }
+            if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Down) {
+		pos -= up* speed;
+                myshader.setParameter("pos",pos);
+	    }
             if (event.type == sf::Event::MouseWheelMoved) {
                 if (event.mouseWheel.delta < 0)
 			pos += dir * speed;
@@ -141,6 +165,7 @@ int main(int, char const**)
 		    float p = thetaphi.y + dthetadphi.y;
                     dir = sf::Vector3f(sin(p)*cos(t), sin(p)*sin(t), cos(p));
     		    up = sf::Vector3f(sin(p - pi/2)*cos(t), sin(p - pi/2)*sin(t), cos(p - pi/2));
+    	            right = cross(dir,up);
 		    myshader.setParameter("viewDir", dir);
 		    myshader.setParameter("up", up);
                 }
